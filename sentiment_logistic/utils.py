@@ -4,6 +4,7 @@ from nltk.stem import PorterStemmer
 from nltk.corpus import stopwords
 from string import punctuation
 import re
+import numpy as np
 
 def process_tweet(tweet):
     stopwords_english = set(stopwords.words('english'))
@@ -26,3 +27,23 @@ def process_tweet(tweet):
     tokens = tknzr.tokenize(tweet2)
     
     return [stemmer.stem(tkn) for tkn in tokens if tkn not in stopwords_english and tkn not in punctuation]
+
+
+def build_freqs(tweets, ys):
+    """Build frequencies.
+    Input:
+        tweets: a list of tweets
+        ys: an m x 1 array with the sentiment label for each tweet
+    Output:
+        freqs: a dictionary mapping each (word, sentiment label) to its frequency
+    
+    """
+    freqs = {}
+    labels = np.squeeze(ys).tolist()
+    for tweet, y in zip(tweets, labels):
+        for token in process_tweet(tweet):
+            pair = (token, y)
+            freqs[pair] = freqs.get(pair, 0.) + 1
+            
+    return freqs
+    
